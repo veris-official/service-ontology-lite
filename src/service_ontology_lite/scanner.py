@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +43,9 @@ _SECRET_HINTS = {
     "GOOGLE": ("Google", "platform"),
     "NAVER": ("Naver", "platform"),
 }
+_ENV_NAME_RE = re.compile(
+    r"(?:process\.env(?:\.([A-Z][A-Z0-9_]*))|process\.env\[['\"]([A-Z][A-Z0-9_]*)['\"]\]|env\(['\"]([A-Z][A-Z0-9_]*)['\"]\))"
+)
 
 
 def scan_project(root: str | Path) -> ServiceGraph:
@@ -255,11 +259,23 @@ def _infer_external_services(graph: ServiceGraph, root: Path) -> None:
         for hint, (name, kind) in _SECRET_HINTS.items():
             if hint in content:
                 service = services.setdefault(name, ExternalService(name=name, type=kind))
-                if hint not in service.env and hint.isupper():
-                    service.env.append(hint)
+                for env_name in _env_names_for_hint(content, hint):
+                    if env_name not in service.env:
+                        service.env.append(env_name)
                 if rel not in service.used_by:
                     service.used_by.append(rel)
     graph.external_services = sorted(services.values(), key=lambda s: s.name)
+
+
+def _env_names_for_hint(content: str, hint: str) -> list[str]:
+    names: list[str] = []
+    for match in _ENV_NAME_RE.finditer(content):
+        name = next((group for group in match.groups() if group), "")
+        if hint in name and name not in names:
+            names.append(name)
+    if names:
+        return names
+    return [hint] if hint.isupper() else []
 
 
 def _iter_project_files(root: Path):
