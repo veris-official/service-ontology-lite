@@ -58,6 +58,99 @@
           "auth": {"type": "string", "enum": ["cron", "admin", "required"]}
         }
       }
+    },
+    "agent_os": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "name": {"type": "string"}
+            }
+          }
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "role": {"type": "string"}
+            }
+          }
+        },
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "type", "project_context_id"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "type": {"type": "string", "minLength": 1},
+              "project_context_id": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "project_context_id", "owner_agent"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "project_context_id": {"type": "string", "minLength": 1},
+              "owner_agent": {"type": "string", "minLength": 1},
+              "surface_id": {"type": "string"},
+              "skills": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "skills": {"type": "array", "items": {"$ref": "#/$defs/agentOsItem"}},
+        "hooks": {"type": "array", "items": {"$ref": "#/$defs/agentOsItem"}},
+        "loops": {"type": "array", "items": {"$ref": "#/$defs/agentOsItem"}},
+        "plugins": {"type": "array", "items": {"$ref": "#/$defs/agentOsItem"}},
+        "memories": {"type": "array", "items": {"$ref": "#/$defs/agentOsItem"}},
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "project_context_id"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "type": {"type": "string"},
+              "project_context_id": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source", "relation", "target"],
+            "properties": {
+              "source": {"type": "string", "minLength": 1},
+              "relation": {"type": "string", "minLength": 1},
+              "target": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "agentOsItem": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "project_context_id": {"type": "string"}
+      }
     }
   }
 }

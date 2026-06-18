@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .agent_os import load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
@@ -14,7 +15,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="service-ontology")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    for name in ("scan", "graph", "audit"):
+    for name in ("scan", "graph", "audit", "agent-os"):
         p = sub.add_parser(name)
         p.add_argument("root", nargs="?", default=".")
         p.add_argument("--json", action="store_true")
@@ -39,6 +40,14 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(_format_text(args.command, payload))
         return 0 if not errors else 1
+
+    if args.command == "agent-os":
+        payload = load_agent_os_registry(Path(args.root))
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(_format_text(args.command, payload))
+        return 0
 
     graph = scan_project(Path(args.root))
 
@@ -81,6 +90,28 @@ def _format_text(command: str, payload: dict) -> str:
     if command == "validate":
         lines = [f"manifest_valid: {str(payload['manifest_valid']).lower()}"]
         lines.extend(payload.get("errors", []))
+        return "\n".join(lines)
+    if command == "agent-os":
+        counts = payload.get("counts", {})
+        lines = [
+            "service-ontology-lite agent-os",
+            f"projects: {counts.get('projects', 0)}",
+            f"agents: {counts.get('agents', 0)}",
+            f"surfaces: {counts.get('surfaces', 0)}",
+            f"tasks: {counts.get('tasks', 0)}",
+            f"artifacts: {counts.get('artifacts', 0)}",
+            f"project_contexts: {len(payload.get('project_contexts', {}))}",
+        ]
+        for project_context_id, context in payload.get("project_contexts", {}).items():
+            context_counts = context.get("counts", {})
+            status = "declared" if context.get("declared") else "undeclared"
+            lines.append(
+                f"- {project_context_id} ({status}): "
+                f"surfaces={context_counts.get('surfaces', 0)}, "
+                f"tasks={context_counts.get('tasks', 0)}, "
+                f"artifacts={context_counts.get('artifacts', 0)}, "
+                f"memories={context_counts.get('memories', 0)}"
+            )
         return "\n".join(lines)
     return json.dumps(payload, ensure_ascii=False, indent=2)
 

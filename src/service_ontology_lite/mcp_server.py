@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from .agent_os import load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
@@ -63,6 +64,12 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> dict[str, Any
         manifest = _load_manifest(target, validate=False)
         errors = validate_manifest(manifest) if manifest else ["service-ontology manifest not found"]
         return {"manifest_valid": not errors, "errors": errors}
+    if name in {"get_agent_os_graph", "list_project_contexts"}:
+        target = Path(arguments.get("root") or root)
+        registry = load_agent_os_registry(target)
+        if name == "list_project_contexts":
+            return {"project_contexts": registry.get("project_contexts", {})}
+        return registry
     graph = scan_project(arguments.get("root") or root)
     if name == "get_service_graph":
         return graph.as_dict()
@@ -116,6 +123,16 @@ def _tools() -> list[dict[str, Any]]:
         {
             "name": "validate_manifest",
             "description": "Validate service-ontology.json/yaml manifest structure before scan.",
+            "inputSchema": root_schema,
+        },
+        {
+            "name": "get_agent_os_graph",
+            "description": "Return Agent OS registry sections and project_context grouping.",
+            "inputSchema": root_schema,
+        },
+        {
+            "name": "list_project_contexts",
+            "description": "List Agent OS project_context_id groups with surface/task/artifact counts.",
             "inputSchema": root_schema,
         },
     ]

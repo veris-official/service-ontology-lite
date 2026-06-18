@@ -22,6 +22,7 @@ MANIFEST_SCHEMA: dict[str, Any] = {
 }
 
 _AGENT_OS_LIST_SECTIONS = {
+    "projects",
     "agents",
     "surfaces",
     "tasks",
@@ -29,6 +30,7 @@ _AGENT_OS_LIST_SECTIONS = {
     "hooks",
     "loops",
     "plugins",
+    "artifacts",
     "memories",
     "relations",
 }
@@ -91,6 +93,8 @@ def _validate_agent_os(value: Any, errors: list[str]) -> None:
 
     for index, item in enumerate(_agent_os_items(value, "agents", errors)):
         _require_string(item, "id", f"agent_os.agents[{index}]", errors)
+    for index, item in enumerate(_agent_os_items(value, "projects", errors)):
+        _require_string(item, "id", f"agent_os.projects[{index}]", errors)
     for index, item in enumerate(_agent_os_items(value, "surfaces", errors)):
         prefix = f"agent_os.surfaces[{index}]"
         _require_string(item, "id", prefix, errors)
@@ -101,6 +105,10 @@ def _validate_agent_os(value: Any, errors: list[str]) -> None:
         _require_string(item, "id", prefix, errors)
         _require_string(item, "project_context_id", prefix, errors)
         _require_string(item, "owner_agent", prefix, errors)
+    for index, item in enumerate(_agent_os_items(value, "artifacts", errors)):
+        prefix = f"agent_os.artifacts[{index}]"
+        _require_string(item, "id", prefix, errors)
+        _require_string(item, "project_context_id", prefix, errors)
     for section in ("skills", "hooks", "loops", "plugins", "memories"):
         for index, item in enumerate(_agent_os_items(value, section, errors)):
             _require_string(item, "id", f"agent_os.{section}[{index}]", errors)

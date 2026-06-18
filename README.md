@@ -70,6 +70,7 @@ Use this before handing a task to an AI coding agent. The result tells the agent
 service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
+service-ontology agent-os ./sample-app --json
 service-ontology risk ./sample-app --changed app/api/admin/route.ts --json
 service-ontology validate ./sample-app
 ```
@@ -82,6 +83,7 @@ validate   Validate service-ontology.json/yaml metadata
 risk       Classify changed files by service blast radius
 audit      Flag missing auth/entity/job/service metadata
 graph      Return the combined service graph
+agent-os   Return Agent OS registry and project_context grouping
 ```
 
 ## MCP server
@@ -99,6 +101,8 @@ list_external_dependencies
 audit_change_risk
 audit_service
 validate_manifest
+get_agent_os_graph
+list_project_contexts
 ```
 
 Hermes Agent MCP config example:
@@ -162,6 +166,25 @@ jobs:
   - name: daily-sync
     schedule: "0 0 * * *"
     handler: app/api/cron/route.ts
+agent_os:
+  projects:
+    - id: service-ontology-lite
+      name: service-ontology-lite sample
+  agents:
+    - id: codex-hermes
+      role: implementation-discord-operator
+  surfaces:
+    - id: local-sample-app
+      type: local_repo
+      project_context_id: service-ontology-lite
+  tasks:
+    - id: agent-os-registry-poc
+      project_context_id: service-ontology-lite
+      owner_agent: codex-hermes
+  artifacts:
+    - id: pytest-agent-os-registry
+      type: test_output
+      project_context_id: service-ontology-lite
 ```
 
 Validate a manifest before sharing it with agents:
