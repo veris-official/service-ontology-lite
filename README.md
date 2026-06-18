@@ -71,6 +71,7 @@ service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
 service-ontology agent-os ./sample-app --json
+service-ontology agent-os ./sample-app --project-context service-ontology-lite --json
 service-ontology risk ./sample-app --changed app/api/admin/route.ts --json
 service-ontology validate ./sample-app
 ```
@@ -104,6 +105,8 @@ validate_manifest
 get_agent_os_graph
 list_project_contexts
 ```
+
+`agent-os` and `list_project_contexts` accept `project_context_id` filtering for a single project handoff context.
 
 Hermes Agent MCP config example:
 

@@ -45,6 +45,47 @@ def normalize_agent_os_registry(manifest: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def filter_project_contexts(registry: dict[str, Any], project_context_id: str) -> dict[str, Any]:
+    """Return a registry payload narrowed to one project_context_id handoff context."""
+    filtered = dict(registry)
+    project_contexts = registry.get("project_contexts", {})
+    if not isinstance(project_contexts, dict):
+        project_contexts = {}
+
+    filtered["project_context_id"] = project_context_id
+    filtered["project_contexts"] = (
+        {project_context_id: project_contexts[project_context_id]}
+        if project_context_id in project_contexts
+        else {}
+    )
+    filtered["projects"] = [
+        project
+        for project in _list_of_dicts(registry.get("projects"))
+        if project.get("id") == project_context_id
+    ]
+
+    entity_ids: set[str] = set()
+    for section in _CONTEXT_SECTIONS:
+        items = [
+            item
+            for item in _list_of_dicts(registry.get(section))
+            if item.get("project_context_id") == project_context_id
+        ]
+        filtered[section] = items
+        entity_ids.update(item["id"] for item in items if isinstance(item.get("id"), str) and item["id"])
+
+    filtered["relations"] = [
+        relation
+        for relation in _list_of_dicts(registry.get("relations"))
+        if relation.get("source") in entity_ids or relation.get("target") in entity_ids
+    ]
+    filtered["counts"] = {
+        section: len(_list_of_dicts(filtered.get(section)))
+        for section in _AGENT_OS_SECTIONS
+    }
+    return filtered
+
+
 def summarize_project_contexts(registry: dict[str, Any]) -> dict[str, dict[str, Any]]:
     """Group Agent OS surfaces, tasks, artifacts, memories, and relation edges by project_context_id."""
     projects = _list_of_dicts(registry.get("projects"))

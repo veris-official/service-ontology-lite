@@ -71,6 +71,7 @@ service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
 service-ontology agent-os ./sample-app --json
+service-ontology agent-os ./sample-app --project-context service-ontology-lite --json
 service-ontology risk ./sample-app --changed app/api/admin/route.ts --json
 service-ontology validate ./sample-app
 ```
@@ -104,6 +105,8 @@ validate_manifest
 get_agent_os_graph
 list_project_contexts
 ```
+
+`agent-os`와 `list_project_contexts`는 단일 프로젝트 인계 컨텍스트만 반환하도록 `project_context_id` 필터를 받는다.
 
 Hermes Agent MCP 설정 예시:
 

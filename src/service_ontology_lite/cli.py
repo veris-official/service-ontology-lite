@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .agent_os import load_agent_os_registry
+from .agent_os import filter_project_contexts, load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
@@ -15,10 +15,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="service-ontology")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    for name in ("scan", "graph", "audit", "agent-os"):
+    for name in ("scan", "graph", "audit"):
         p = sub.add_parser(name)
         p.add_argument("root", nargs="?", default=".")
         p.add_argument("--json", action="store_true")
+
+    agent_os = sub.add_parser("agent-os")
+    agent_os.add_argument("root", nargs="?", default=".")
+    agent_os.add_argument("--json", action="store_true")
+    agent_os.add_argument("--project-context", dest="project_context_id")
 
     risk = sub.add_parser("risk")
     risk.add_argument("root", nargs="?", default=".")
@@ -53,6 +58,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(_format_text("validate", payload))
             return 1
         payload = load_agent_os_registry(root)
+        if args.project_context_id:
+            payload = filter_project_contexts(payload, args.project_context_id)
         if getattr(args, "json", False):
             print(json.dumps(payload, ensure_ascii=False, indent=2))
         else:

@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from .agent_os import load_agent_os_registry
+from .agent_os import filter_project_contexts, load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
@@ -71,8 +71,14 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> dict[str, Any
         if errors:
             return {"manifest_valid": False, "errors": errors}
         registry = load_agent_os_registry(target)
+        project_context_id = arguments.get("project_context_id")
+        if isinstance(project_context_id, str) and project_context_id:
+            registry = filter_project_contexts(registry, project_context_id)
         if name == "list_project_contexts":
-            return {"project_contexts": registry.get("project_contexts", {})}
+            return {
+                "project_contexts": registry.get("project_contexts", {}),
+                **({"project_context_id": registry["project_context_id"]} if "project_context_id" in registry else {}),
+            }
         return registry
     graph = scan_project(arguments.get("root") or root)
     if name == "get_service_graph":
@@ -90,7 +96,10 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> dict[str, Any
 
 
 def _tools() -> list[dict[str, Any]]:
-    root_schema = {"type": "object", "properties": {"root": {"type": "string"}}}
+    root_schema = {
+        "type": "object",
+        "properties": {"root": {"type": "string"}, "project_context_id": {"type": "string"}},
+    }
     risk_schema = {
         "type": "object",
         "properties": {
