@@ -67,6 +67,7 @@ AI 코딩 에이전트에게 작업을 넘기기 전에 실행한다. 결과는 
 ## CLI
 
 ```bash
+service-ontology --version
 service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
@@ -80,6 +81,7 @@ service-ontology validate ./sample-app
 
 ```text
 scan       라우트, 인증 경계, 엔티티, 외부 서비스, 작업 생성
+--version  설치된 패키지 버전 출력
 validate   service-ontology.json/yaml 메타데이터 검증
 risk       변경 파일의 서비스 영향 범위 분류
 audit      누락된 auth/entity/job/service 메타데이터 점검

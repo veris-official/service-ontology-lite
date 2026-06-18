@@ -5,13 +5,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from . import __version__
 from .agent_os import filter_project_contexts, load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
 from .schema import validate_manifest
 
-SERVER_INFO = {"name": "service-ontology-lite", "version": "0.1.0"}
+SERVER_INFO = {"name": "service-ontology-lite", "version": __version__}
 
 
 def main(argv: list[str] | None = None) -> int:

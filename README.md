@@ -67,6 +67,7 @@ Use this before handing a task to an AI coding agent. The result tells the agent
 ## CLI
 
 ```bash
+service-ontology --version
 service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
@@ -80,6 +81,7 @@ Commands:
 
 ```text
 scan       Generate routes, auth boundaries, entities, external services, and jobs
+--version  Print installed package version
 validate   Validate service-ontology.json/yaml metadata
 risk       Classify changed files by service blast radius
 audit      Flag missing auth/entity/job/service metadata
