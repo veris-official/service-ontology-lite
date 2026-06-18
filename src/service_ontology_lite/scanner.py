@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from .agent_os import normalize_agent_os_registry
 from .models import Entity, ExternalService, Job, Route, ServiceGraph
 from .schema import validate_manifest
 
@@ -54,6 +55,9 @@ def scan_project(root: str | Path) -> ServiceGraph:
     manifest = _load_manifest(project_root)
     if manifest:
         _apply_manifest(graph, manifest)
+        agent_os = normalize_agent_os_registry(manifest)
+        if any(agent_os["counts"].values()):
+            graph.metadata["agent_os"] = agent_os
 
     route_files = sorted(
         p

@@ -17,7 +17,20 @@ MANIFEST_SCHEMA: dict[str, Any] = {
         "entities": {"type": "array"},
         "external_services": {"type": "array"},
         "jobs": {"type": "array"},
+        "agent_os": {"type": "object"},
     },
+}
+
+_AGENT_OS_LIST_SECTIONS = {
+    "agents",
+    "surfaces",
+    "tasks",
+    "skills",
+    "hooks",
+    "loops",
+    "plugins",
+    "memories",
+    "relations",
 }
 
 
@@ -62,7 +75,55 @@ def validate_manifest(manifest: dict[str, Any]) -> list[str]:
         if str(auth).lower() not in JOB_AUTH_VALUES:
             errors.append(f"{prefix}.auth must be cron/admin/required")
 
+    _validate_agent_os(manifest.get("agent_os"), errors)
+
     return errors
+
+
+def _validate_agent_os(value: Any, errors: list[str]) -> None:
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        errors.append("agent_os must be an object")
+        return
+    for section in _AGENT_OS_LIST_SECTIONS:
+        _validate_agent_os_list(value.get(section), f"agent_os.{section}", errors)
+
+    for index, item in enumerate(_agent_os_items(value, "agents", errors)):
+        _require_string(item, "id", f"agent_os.agents[{index}]", errors)
+    for index, item in enumerate(_agent_os_items(value, "surfaces", errors)):
+        prefix = f"agent_os.surfaces[{index}]"
+        _require_string(item, "id", prefix, errors)
+        _require_string(item, "type", prefix, errors)
+        _require_string(item, "project_context_id", prefix, errors)
+    for index, item in enumerate(_agent_os_items(value, "tasks", errors)):
+        prefix = f"agent_os.tasks[{index}]"
+        _require_string(item, "id", prefix, errors)
+        _require_string(item, "project_context_id", prefix, errors)
+        _require_string(item, "owner_agent", prefix, errors)
+    for section in ("skills", "hooks", "loops", "plugins", "memories"):
+        for index, item in enumerate(_agent_os_items(value, section, errors)):
+            _require_string(item, "id", f"agent_os.{section}[{index}]", errors)
+    for index, item in enumerate(_agent_os_items(value, "relations", errors)):
+        prefix = f"agent_os.relations[{index}]"
+        _require_string(item, "source", prefix, errors)
+        _require_string(item, "relation", prefix, errors)
+        _require_string(item, "target", prefix, errors)
+
+
+def _validate_agent_os_list(value: Any, path: str, errors: list[str]) -> None:
+    if value is None:
+        return
+    if not isinstance(value, list):
+        errors.append(f"{path} must be an array")
+        return
+    for index, item in enumerate(value):
+        if not isinstance(item, dict):
+            errors.append(f"{path}[{index}] must be an object")
+
+
+def _agent_os_items(agent_os: dict[str, Any], key: str, errors: list[str]) -> list[dict[str, Any]]:
+    return _items(agent_os, key, errors)
 
 
 def _items(manifest: dict[str, Any], key: str, errors: list[str]) -> list[dict[str, Any]]:
