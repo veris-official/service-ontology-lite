@@ -67,9 +67,12 @@ AI 코딩 에이전트에게 작업을 넘기기 전에 실행한다. 결과는 
 ## CLI
 
 ```bash
+service-ontology --version   # 또는: service-ontology -V
 service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
+service-ontology agent-os ./sample-app --json
+service-ontology agent-os ./sample-app --project-context service-ontology-lite --json
 service-ontology risk ./sample-app --changed app/api/admin/route.ts --json
 service-ontology validate ./sample-app
 ```
@@ -78,10 +81,12 @@ service-ontology validate ./sample-app
 
 ```text
 scan       라우트, 인증 경계, 엔티티, 외부 서비스, 작업 생성
+--version  설치된 패키지 버전 출력
 validate   service-ontology.json/yaml 메타데이터 검증
 risk       변경 파일의 서비스 영향 범위 분류
 audit      누락된 auth/entity/job/service 메타데이터 점검
 graph      통합 서비스 그래프 반환
+agent-os   Agent OS registry와 project_context 그룹 반환
 ```
 
 ## MCP 서버
@@ -99,7 +104,11 @@ list_external_dependencies
 audit_change_risk
 audit_service
 validate_manifest
+get_agent_os_graph
+list_project_contexts
 ```
+
+`agent-os`와 `list_project_contexts`는 단일 프로젝트 인계 컨텍스트만 반환하도록 `project_context_id` 필터를 받는다.
 
 Hermes Agent MCP 설정 예시:
 
@@ -114,6 +123,21 @@ mcp_servers:
 
 등록 후 AI 에이전트는 라우트를 수정하기 전에 `audit_change_risk`를 호출해 해당 파일이 public, admin, cron, data, external-service 경계를 넘는지 확인한다.
 
+## Python API
+
+```python
+from service_ontology_lite import (
+    audit_change_risk,
+    filter_project_contexts,
+    load_agent_os_registry,
+    scan_project,
+    validate_manifest,
+)
+
+registry = load_agent_os_registry("./sample-app")
+project_context = filter_project_contexts(registry, "service-ontology-lite")
+```
+
 ## 샘플 앱 dry-run 결과
 
 번들된 sample app 기준 현재 릴리스 결과:
@@ -125,7 +149,7 @@ audit score             100
 audit findings          0
 risk admin route        HIGH
 manifest_valid          true
-MCP tools exposed       6
+MCP tools exposed       8
 ```
 
 ## Next.js 라우트 지원
@@ -162,6 +186,25 @@ jobs:
   - name: daily-sync
     schedule: "0 0 * * *"
     handler: app/api/cron/route.ts
+agent_os:
+  projects:
+    - id: service-ontology-lite
+      name: service-ontology-lite sample
+  agents:
+    - id: implementation-agent
+      role: implementation
+  surfaces:
+    - id: local-sample-app
+      type: local_repo
+      project_context_id: service-ontology-lite
+  tasks:
+    - id: agent-os-registry-poc
+      project_context_id: service-ontology-lite
+      owner_agent: implementation-agent
+  artifacts:
+    - id: pytest-agent-os-registry
+      type: test_output
+      project_context_id: service-ontology-lite
 ```
 
 에이전트에게 공유하기 전에 manifest를 검증한다.

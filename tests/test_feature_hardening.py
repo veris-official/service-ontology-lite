@@ -105,8 +105,10 @@ def test_change_risk_service_role_external_dependency_is_high(tmp_path: Path):
     )
 
     graph = scan_project(tmp_path)
+    service = next(s for s in graph.external_services if s.name == "Supabase")
     risk = audit_change_risk(graph, ["api/_lib/second-salary-api.mjs"])
 
+    assert "SUPABASE_SERVICE_ROLE_KEY" in service.env
     assert risk["severity"] == "HIGH"
     assert "sensitive_external_dependency_touched" in risk["reasons"]
 

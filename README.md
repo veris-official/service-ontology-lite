@@ -67,9 +67,12 @@ Use this before handing a task to an AI coding agent. The result tells the agent
 ## CLI
 
 ```bash
+service-ontology --version   # or: service-ontology -V
 service-ontology scan ./sample-app --json
 service-ontology audit ./sample-app --json
 service-ontology graph ./sample-app --json
+service-ontology agent-os ./sample-app --json
+service-ontology agent-os ./sample-app --project-context service-ontology-lite --json
 service-ontology risk ./sample-app --changed app/api/admin/route.ts --json
 service-ontology validate ./sample-app
 ```
@@ -78,10 +81,12 @@ Commands:
 
 ```text
 scan       Generate routes, auth boundaries, entities, external services, and jobs
+--version  Print installed package version
 validate   Validate service-ontology.json/yaml metadata
 risk       Classify changed files by service blast radius
 audit      Flag missing auth/entity/job/service metadata
 graph      Return the combined service graph
+agent-os   Return Agent OS registry and project_context grouping
 ```
 
 ## MCP server
@@ -99,7 +104,11 @@ list_external_dependencies
 audit_change_risk
 audit_service
 validate_manifest
+get_agent_os_graph
+list_project_contexts
 ```
+
+`agent-os` and `list_project_contexts` accept `project_context_id` filtering for a single project handoff context.
 
 Hermes Agent MCP config example:
 
@@ -114,6 +123,21 @@ mcp_servers:
 
 When registered, an AI agent can call `audit_change_risk` before editing a route and see whether the touched file crosses public, admin, cron, data, or external-service boundaries.
 
+## Python API
+
+```python
+from service_ontology_lite import (
+    audit_change_risk,
+    filter_project_contexts,
+    load_agent_os_registry,
+    scan_project,
+    validate_manifest,
+)
+
+registry = load_agent_os_registry("./sample-app")
+project_context = filter_project_contexts(registry, "service-ontology-lite")
+```
+
 ## Example dry-run result
 
 Against the bundled sample app, the current release reports:
@@ -125,7 +149,7 @@ audit score             100
 audit findings          0
 risk admin route        HIGH
 manifest_valid          true
-MCP tools exposed       6
+MCP tools exposed       8
 ```
 
 ## Next.js route support
@@ -162,6 +186,25 @@ jobs:
   - name: daily-sync
     schedule: "0 0 * * *"
     handler: app/api/cron/route.ts
+agent_os:
+  projects:
+    - id: service-ontology-lite
+      name: service-ontology-lite sample
+  agents:
+    - id: implementation-agent
+      role: implementation
+  surfaces:
+    - id: local-sample-app
+      type: local_repo
+      project_context_id: service-ontology-lite
+  tasks:
+    - id: agent-os-registry-poc
+      project_context_id: service-ontology-lite
+      owner_agent: implementation-agent
+  artifacts:
+    - id: pytest-agent-os-registry
+      type: test_output
+      project_context_id: service-ontology-lite
 ```
 
 Validate a manifest before sharing it with agents:

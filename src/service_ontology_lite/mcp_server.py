@@ -5,12 +5,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from . import __version__
+from .agent_os import filter_project_contexts, load_agent_os_registry
 from .audit import audit_change_risk, audit_graph
 from .models import score_findings
 from .scanner import _load_manifest, scan_project
 from .schema import validate_manifest
 
-SERVER_INFO = {"name": "service-ontology-lite", "version": "0.1.0"}
+SERVER_INFO = {"name": "service-ontology-lite", "version": __version__}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -63,6 +65,22 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> dict[str, Any
         manifest = _load_manifest(target, validate=False)
         errors = validate_manifest(manifest) if manifest else ["service-ontology manifest not found"]
         return {"manifest_valid": not errors, "errors": errors}
+    if name in {"get_agent_os_graph", "list_project_contexts"}:
+        target = Path(arguments.get("root") or root)
+        manifest = _load_manifest(target, validate=False)
+        errors = validate_manifest(manifest) if manifest else ["service-ontology manifest not found"]
+        if errors:
+            return {"manifest_valid": False, "errors": errors}
+        registry = load_agent_os_registry(target)
+        project_context_id = arguments.get("project_context_id")
+        if isinstance(project_context_id, str) and project_context_id:
+            registry = filter_project_contexts(registry, project_context_id)
+        if name == "list_project_contexts":
+            return {
+                "project_contexts": registry.get("project_contexts", {}),
+                **({"project_context_id": registry["project_context_id"]} if "project_context_id" in registry else {}),
+            }
+        return registry
     graph = scan_project(arguments.get("root") or root)
     if name == "get_service_graph":
         return graph.as_dict()
@@ -79,7 +97,10 @@ def call_tool(name: str, arguments: dict[str, Any], root: Path) -> dict[str, Any
 
 
 def _tools() -> list[dict[str, Any]]:
-    root_schema = {"type": "object", "properties": {"root": {"type": "string"}}}
+    root_schema = {
+        "type": "object",
+        "properties": {"root": {"type": "string"}, "project_context_id": {"type": "string"}},
+    }
     risk_schema = {
         "type": "object",
         "properties": {
@@ -116,6 +137,16 @@ def _tools() -> list[dict[str, Any]]:
         {
             "name": "validate_manifest",
             "description": "Validate service-ontology.json/yaml manifest structure before scan.",
+            "inputSchema": root_schema,
+        },
+        {
+            "name": "get_agent_os_graph",
+            "description": "Return Agent OS registry sections and project_context grouping.",
+            "inputSchema": root_schema,
+        },
+        {
+            "name": "list_project_contexts",
+            "description": "List Agent OS project_context_id groups with surface/task/artifact counts.",
             "inputSchema": root_schema,
         },
     ]
