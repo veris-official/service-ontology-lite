@@ -121,6 +121,21 @@ mcp_servers:
 
 등록 후 AI 에이전트는 라우트를 수정하기 전에 `audit_change_risk`를 호출해 해당 파일이 public, admin, cron, data, external-service 경계를 넘는지 확인한다.
 
+## Python API
+
+```python
+from service_ontology_lite import (
+    audit_change_risk,
+    filter_project_contexts,
+    load_agent_os_registry,
+    scan_project,
+    validate_manifest,
+)
+
+registry = load_agent_os_registry("./sample-app")
+project_context = filter_project_contexts(registry, "service-ontology-lite")
+```
+
 ## 샘플 앱 dry-run 결과
 
 번들된 sample app 기준 현재 릴리스 결과:

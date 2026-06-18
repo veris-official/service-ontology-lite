@@ -121,6 +121,21 @@ mcp_servers:
 
 When registered, an AI agent can call `audit_change_risk` before editing a route and see whether the touched file crosses public, admin, cron, data, or external-service boundaries.
 
+## Python API
+
+```python
+from service_ontology_lite import (
+    audit_change_risk,
+    filter_project_contexts,
+    load_agent_os_registry,
+    scan_project,
+    validate_manifest,
+)
+
+registry = load_agent_os_registry("./sample-app")
+project_context = filter_project_contexts(registry, "service-ontology-lite")
+```
+
 ## Example dry-run result
 
 Against the bundled sample app, the current release reports:

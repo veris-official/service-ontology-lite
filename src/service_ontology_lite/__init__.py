@@ -1,5 +1,11 @@
 """service-ontology-lite package."""
 
+from .agent_os import (
+    filter_project_contexts,
+    load_agent_os_registry,
+    normalize_agent_os_registry,
+    summarize_project_contexts,
+)
 from .audit import audit_change_risk, audit_graph
 from .models import Finding, ServiceGraph
 from .scanner import scan_project
@@ -11,6 +17,10 @@ __all__ = [
     "ServiceGraph",
     "audit_change_risk",
     "audit_graph",
+    "filter_project_contexts",
+    "load_agent_os_registry",
+    "normalize_agent_os_registry",
     "scan_project",
+    "summarize_project_contexts",
     "validate_manifest",
 ]
