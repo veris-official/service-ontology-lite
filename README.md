@@ -1,4 +1,4 @@
-# service-ontology-lite · [![CI](https://github.com/verisworks-ai/service-ontology-lite-public/actions/workflows/ci.yml/badge.svg)](https://github.com/verisworks-ai/service-ontology-lite-public/actions/workflows/ci.yml) [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org) [![MCP stdio](https://img.shields.io/badge/MCP-stdio-green.svg)](https://modelcontextprotocol.io) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+# service-ontology-lite · [![CI](https://github.com/veris-official/service-ontology-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/veris-official/service-ontology-lite/actions/workflows/ci.yml) [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org) [![MCP stdio](https://img.shields.io/badge/MCP-stdio-green.svg)](https://modelcontextprotocol.io) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 English | [한국어](./README-ko_kr.md)
 
@@ -6,7 +6,7 @@ Map routes, auth boundaries, data entities, scheduled jobs, and external service
 
 `service-ontology-lite` turns a small Next.js-style app into a machine-readable service map, then exposes that map through a CLI and MCP stdio server.
 
-> Status: private staging repo. Public-safe core code lives here. Project-specific scoring, production schema, tokens, and incident runbooks stay outside this package.
+> Status: public alpha. Project-specific scoring, production schema, tokens, and incident runbooks stay outside this package.
 
 ## Why this exists
 
@@ -34,10 +34,10 @@ What is the blast radius of this edit?        LOW/MEDIUM/HIGH risk with impacted
 
 ## Install
 
-Current private staging install:
+Install from GitHub:
 
 ```bash
-python3 -m pip install "git+https://github.com/verisworks-ai/service-ontology-lite-public.git"
+python3 -m pip install "git+https://github.com/veris-official/service-ontology-lite.git"
 ```
 
 Local development install:
@@ -46,7 +46,7 @@ Local development install:
 python3 -m pip install -e .
 ```
 
-Planned public release install after hardening:
+Planned PyPI install after package release:
 
 ```bash
 python3 -m pip install service-ontology-lite

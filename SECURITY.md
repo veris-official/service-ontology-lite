@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-`service-ontology-lite` is currently in private staging. Security fixes target the current `main` branch until the first public package release.
+`service-ontology-lite` is currently in public alpha. Security fixes target the current `main` branch until the first public package release.
 
 ## Reporting a vulnerability
 

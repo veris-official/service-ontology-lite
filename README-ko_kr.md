@@ -1,4 +1,4 @@
-# service-ontology-lite · [![CI](https://github.com/verisworks-ai/service-ontology-lite-public/actions/workflows/ci.yml/badge.svg)](https://github.com/verisworks-ai/service-ontology-lite-public/actions/workflows/ci.yml) [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org) [![MCP stdio](https://img.shields.io/badge/MCP-stdio-green.svg)](https://modelcontextprotocol.io) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+# service-ontology-lite · [![CI](https://github.com/veris-official/service-ontology-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/veris-official/service-ontology-lite/actions/workflows/ci.yml) [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org) [![MCP stdio](https://img.shields.io/badge/MCP-stdio-green.svg)](https://modelcontextprotocol.io) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 [English](./README.md) | 한국어
 
@@ -6,7 +6,7 @@ AI 에이전트가 웹앱을 수정하기 전에 라우트, 인증 경계, 데�
 
 `service-ontology-lite`는 작은 Next.js 스타일 앱을 기계가 읽을 수 있는 서비스 맵으로 변환하고, 그 맵을 CLI와 MCP stdio 서버로 제공한다.
 
-> 상태: private staging repo. 공개 가능한 핵심 코드만 이 저장소에 둔다. 프로젝트별 점수 규칙, 운영 스키마, 토큰, 장애 대응 문서는 패키지 밖에 둔다.
+> 상태: public alpha. 프로젝트별 점수 규칙, 운영 스키마, 토큰, 장애 대응 문서는 패키지 밖에 둔다.
 
 ## 존재 이유
 
@@ -34,10 +34,10 @@ public/auth/admin/cron 경계는 무엇인가?       인증 경계 라벨
 
 ## 설치
 
-현재 private staging 설치:
+GitHub 설치:
 
 ```bash
-python3 -m pip install "git+https://github.com/verisworks-ai/service-ontology-lite-public.git"
+python3 -m pip install "git+https://github.com/veris-official/service-ontology-lite.git"
 ```
 
 로컬 개발 설치:
@@ -46,7 +46,7 @@ python3 -m pip install "git+https://github.com/verisworks-ai/service-ontology-li
 python3 -m pip install -e .
 ```
 
-공개 릴리스 후 예정 설치:
+패키지 배포 후 예정된 PyPI 설치:
 
 ```bash
 python3 -m pip install service-ontology-lite
